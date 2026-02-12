@@ -3,110 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Demo - Jared</title>
+    <title>Prácticas Jared - 12 Feb</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #2c2c44);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white;
-            text-align: center;
-            padding: 60px;
             margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        h1 {
-            margin-bottom: 40px;
-        }
-
-        .card {
-            background-color: #2a2a3e;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            display: inline-block;
-            min-width: 300px;
-        }
-
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        #resultado {
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
             margin-top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #00d2ff;
+            border-bottom: 2px solid #00d2ff;
+        }
+
+        .content { display: none; }
+        .content.active { display: block; }
+
+        /* Estilos Chat */
+        #chat-box {
+            height: 150px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
             text-align: left;
             font-size: 14px;
         }
 
-        .token-box {
-            background: #1e1e2f;
-            padding: 10px;
+        input {
+            width: 70%;
+            padding: 8px;
             border-radius: 5px;
-            border-left: 4px solid #4caf50;
-            word-break: break-all;
-            margin-top: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            background: #00d2ff;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Estilos Token Box */
+        .token-display {
+            background: #111;
+            padding: 10px;
             font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+            border-left: 3px solid #00d2ff;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
-    <h1>Simulación de API con JWT</h1>
+    <h1>Prácticas de Clase</h1>
 
-    <div class="card">
-        <p><strong>Usuario:</strong> Jared</p>
-        <button id="btnObtener">Obtener Perfil</button>
-        
-        <div id="resultado"></div>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('chat')">Chat</button>
+            <button class="tab-btn" onclick="openTab('compra')">Compra</button>
+            <button class="tab-btn" onclick="openTab('token')">Token</button>
+        </div>
+
+        <div id="chat" class="content active">
+            <h3>💬 Chat Sencillo</h3>
+            <div id="chat-box"></div>
+            <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+
+        <div id="compra" class="content">
+            <h3>🛒 Compra Sencilla</h3>
+            <p>Producto: Laptop Gamer</p>
+            <p>Precio: $1,200</p>
+            <button onclick="realizarCompra()" id="buy-btn">Confirmar Compra</button>
+            <p id="compra-status"></p>
+        </div>
+
+        <div id="token" class="content">
+            <h3>🔑 Servicio con Token</h3>
+            <p>Estado: <span id="auth-status">No Autenticado</span></p>
+            <button onclick="obtenerToken()">Solicitar JWT</button>
+            <div id="token-result"></div>
+        </div>
     </div>
 
     <script>
-        // Lógica para la práctica: Servicio con Token
-        const boton = document.getElementById('btnObtener');
-        const resultadoDiv = document.getElementById('resultado');
+        // Navegación de pestañas
+        function openTab(tabName) {
+            const contents = document.querySelectorAll('.content');
+            const btns = document.querySelectorAll('.tab-btn');
+            contents.forEach(c => c.classList.remove('active'));
+            btns.forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
 
-        boton.addEventListener('click', () => {
-            // 1. Simulamos que el botón está trabajando
-            boton.innerText = "Conectando...";
-            boton.disabled = true;
+        // Lógica Chat
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if(input.value) {
+                box.innerHTML += `<p><strong>Tú:</strong> ${input.value}</p>`;
+                input.value = '';
+                box.scrollTop = box.scrollHeight;
+                setTimeout(() => {
+                    box.innerHTML += `<p style="color:#00d2ff"><strong>Bot:</strong> ¡Mensaje recibido!</p>`;
+                }, 500);
+            }
+        }
 
-            // 2. Simulamos una espera de red (1 segundo)
+        // Lógica Compra
+        function realizarCompra() {
+            const btn = document.getElementById('buy-btn');
+            const status = document.getElementById('compra-status');
+            btn.innerText = "Procesando...";
+            btn.disabled = true;
             setTimeout(() => {
-                // Generamos un Token JWT simulado
-                const fakeJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKYXJlZDEyMyIsImV4cCI6MTUxNjIzOTAyMn0";
+                status.innerHTML = "✅ ¡Compra realizada con éxito!";
+                status.style.color = "#4caf50";
+                btn.innerText = "Completado";
+            }, 1500);
+        }
 
-                // 3. Mostramos la información en pantalla
-                resultadoDiv.innerHTML = `
-                    <p style="color: #4caf50; font-weight: bold;">✅ Acceso Autorizado</p>
-                    <p><strong>Datos recibidos:</strong></p>
-                    <ul>
-                        <li>Nombre: Jared Vergara</li>
-                        <li>Status: Alumno</li>
-                    </ul>
-                    <p><strong>Token de sesión (JWT):</strong></p>
-                    <div class="token-box">${fakeJWT}</div>
-                `;
-
-                boton.innerText = "Perfil Actualizado";
-                boton.style.backgroundColor = "#2196F3";
-            }, 1000);
-        });
+        // Lógica Token (JWT)
+        function obtenerToken() {
+            const status = document.getElementById('auth-status');
+            const result = document.getElementById('token-result');
+            const fakeJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiSmFyZWQiLCJyb2xlIjoiYWRtaW4ifQ";
+            
+            status.innerText = "Autenticado";
+            status.style.color = "#4caf50";
+            result.innerHTML = `
+                <p>Acceso concedido. Token generado:</p>
+                <div class="token-display">${fakeJWT}</div>
+            `;
+        }
     </script>
 
 </body>
 </html>
-
-  <script>
-    function mostrarPerfil() {
-      docume
-
