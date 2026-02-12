@@ -3,182 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prácticas Jared - 12 Feb</title>
+    <title>Práctica Final - Jared</title>
     <style>
+        /* Estilos Generales */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            color: white;
+            background: #0f172a; /* Fondo oscuro moderno */
+            color: #f8fafc;
             margin: 0;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
 
         .container {
-            width: 100%;
-            max-width: 500px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            margin-top: 20px;
+            width: 90%;
+            max-width: 450px;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
         }
 
+        h1 { font-size: 1.5rem; text-align: center; color: #38bdf8; margin-bottom: 20px; }
+
+        /* Pestañas (Tabs) */
         .tabs {
             display: flex;
-            justify-content: space-around;
+            gap: 10px;
             margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid #334155;
             padding-bottom: 10px;
         }
 
         .tab-btn {
             background: none;
             border: none;
-            color: rgba(255,255,255,0.6);
+            color: #94a3b8;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: 0.2s;
         }
 
         .tab-btn.active {
-            color: #00d2ff;
-            border-bottom: 2px solid #00d2ff;
+            background: #38bdf8;
+            color: #0f172a;
         }
 
-        .content { display: none; }
+        .content { display: none; animation: fadeIn 0.3s ease; }
         .content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Estilos Chat */
         #chat-box {
-            height: 150px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 10px;
+            height: 180px;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 12px;
             overflow-y: auto;
-            margin-bottom: 10px;
-            text-align: left;
-            font-size: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #334155;
+            font-size: 0.9rem;
         }
+        .msg { margin-bottom: 8px; }
+        .user-msg { color: #38bdf8; }
+        .bot-msg { color: #2dd4bf; }
 
+        /* Estilos Globales para Inputs y Botones */
         input {
-            width: 70%;
-            padding: 8px;
-            border-radius: 5px;
-            border: none;
-        }
-
-        button {
-            padding: 8px 15px;
-            border-radius: 5px;
-            border: none;
-            background: #00d2ff;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* Estilos Token Box */
-        .token-display {
-            background: #111;
+            width: calc(100% - 100px);
             padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            outline: none;
+        }
+
+        button.action-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #38bdf8;
+            color: #0f172a;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.action-btn:hover { background: #7dd3fc; }
+        button.action-btn:disabled { background: #475569; cursor: not-allowed; }
+
+        /* Token Display */
+        .token-card {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 8px;
             font-family: monospace;
             font-size: 11px;
             word-break: break-all;
-            border-left: 3px solid #00d2ff;
-            margin-top: 10px;
+            margin-top: 15px;
+            border: 1px dashed #38bdf8;
         }
     </style>
 </head>
 <body>
 
-    <h1>Prácticas de Clase</h1>
+    <h1>Prácticas API - Jared</h1>
 
     <div class="container">
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('chat')">Chat</button>
-            <button class="tab-btn" onclick="openTab('compra')">Compra</button>
-            <button class="tab-btn" onclick="openTab('token')">Token</button>
+            <button class="tab-btn active" onclick="showTab('chat')">Chat</button>
+            <button class="tab-btn" onclick="showTab('compra')">Compra</button>
+            <button class="tab-btn" onclick="showTab('token')">Token</button>
         </div>
 
         <div id="chat" class="content active">
             <h3>💬 Chat Sencillo</h3>
-            <div id="chat-box"></div>
-            <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
-            <button onclick="sendMessage()">Enviar</button>
+            <div id="chat-box" id="chatDisplay">
+                <div class="msg bot-msg"><strong>Bot:</strong> Hola Jared, ¿en qué puedo ayudarte?</div>
+            </div>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="chatInput" placeholder="Escribe aquí...">
+                <button class="action-btn" onclick="sendMsg()">Enviar</button>
+            </div>
         </div>
 
         <div id="compra" class="content">
             <h3>🛒 Compra Sencilla</h3>
-            <p>Producto: Laptop Gamer</p>
-            <p>Precio: $1,200</p>
-            <button onclick="realizarCompra()" id="buy-btn">Confirmar Compra</button>
-            <p id="compra-status"></p>
+            <div style="background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p><strong>Producto:</strong> API Premium Key</p>
+                <p><strong>Total:</strong> $49.99</p>
+            </div>
+            <button class="action-btn" id="btnBuy" onclick="buyProcess()">Confirmar Pago</button>
+            <p id="buyStatus" style="margin-top: 10px;"></p>
         </div>
 
         <div id="token" class="content">
-            <h3>🔑 Servicio con Token</h3>
-            <p>Estado: <span id="auth-status">No Autenticado</span></p>
-            <button onclick="obtenerToken()">Solicitar JWT</button>
-            <div id="token-result"></div>
+            <h3>🔑 Servicio con Token (JWT)</h3>
+            <p>Obtén tu acceso seguro al servidor.</p>
+            <button class="action-btn" id="btnToken" onclick="getToken()">Generar JWT</button>
+            <div id="tokenArea"></div>
         </div>
     </div>
 
     <script>
-        // Navegación de pestañas
-        function openTab(tabName) {
-            const contents = document.querySelectorAll('.content');
-            const btns = document.querySelectorAll('.tab-btn');
-            contents.forEach(c => c.classList.remove('active'));
-            btns.forEach(b => b.classList.remove('active'));
-            document.getElementById(tabName).classList.add('active');
+        // Lógica de Pestañas
+        function showTab(tabId) {
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        // Lógica Chat
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
+        // Lógica de Chat
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
             const box = document.getElementById('chat-box');
-            if(input.value) {
-                box.innerHTML += `<p><strong>Tú:</strong> ${input.value}</p>`;
-                input.value = '';
+            if (input.value.trim() !== "") {
+                box.innerHTML += `<div class="msg user-msg"><strong>Tú:</strong> ${input.value}</div>`;
+                const userText = input.value;
+                input.value = "";
                 box.scrollTop = box.scrollHeight;
+
                 setTimeout(() => {
-                    box.innerHTML += `<p style="color:#00d2ff"><strong>Bot:</strong> ¡Mensaje recibido!</p>`;
-                }, 500);
+                    box.innerHTML += `<div class="msg bot-msg"><strong>Bot:</strong> Recibí tu mensaje: "${userText}". ¡Procesando!</div>`;
+                    box.scrollTop = box.scrollHeight;
+                }, 600);
             }
         }
 
-        // Lógica Compra
-        function realizarCompra() {
-            const btn = document.getElementById('buy-btn');
-            const status = document.getElementById('compra-status');
-            btn.innerText = "Procesando...";
+        // Lógica de Compra
+        function buyProcess() {
+            const btn = document.getElementById('btnBuy');
+            const status = document.getElementById('buyStatus');
             btn.disabled = true;
+            btn.innerText = "Validando tarjeta...";
+            
             setTimeout(() => {
-                status.innerHTML = "✅ ¡Compra realizada con éxito!";
-                status.style.color = "#4caf50";
-                btn.innerText = "Completado";
+                status.innerHTML = "✅ ¡Pago aprobado! Revisa tu correo.";
+                status.style.color = "#4ade80";
+                btn.innerText = "Comprado";
             }, 1500);
         }
 
-        // Lógica Token (JWT)
-        function obtenerToken() {
-            const status = document.getElementById('auth-status');
-            const result = document.getElementById('token-result');
-            const fakeJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiSmFyZWQiLCJyb2xlIjoiYWRtaW4ifQ";
+        // Lógica de Token
+        function getToken() {
+            const area = document.getElementById('tokenArea');
+            const btn = document.getElementById('btnToken');
+            // Simulación de un JWT real
+            const jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEwMSIsIm5hbWUiOiJKYXJlZCJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
             
-            status.innerText = "Autenticado";
-            status.style.color = "#4caf50";
-            result.innerHTML = `
-                <p>Acceso concedido. Token generado:</p>
-                <div class="token-display">${fakeJWT}</div>
-            `;
+            btn.innerText = "Solicitando...";
+            setTimeout(() => {
+                area.innerHTML = `
+                    <div class="token-card">
+                        <strong style="color: #38bdf8;">Token Generado:</strong><br>
+                        ${jwt}
+                    </div>
+                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">⚠️ Este token vence en 24 horas.</p>
+                `;
+                btn.innerText = "Token Actualizado";
+            }, 800);
         }
     </script>
-
 </body>
 </html>
