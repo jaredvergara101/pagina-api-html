@@ -1,74 +1,112 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>API Demo - Jared</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #1e1e2f, #2c2c44);
-      color: white;
-      text-align: center;
-      padding: 60px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Demo - Jared</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2c2c44);
+            color: white;
+            text-align: center;
+            padding: 60px;
+            margin: 0;
+        }
 
-    h1 {
-      margin-bottom: 40px;
-    }
+        h1 {
+            margin-bottom: 40px;
+        }
 
-    .card {
-      background-color: #2c2c44;
-      padding: 25px;
-      border-radius: 12px;
-      width: 320px;
-      margin: auto;
-      box-shadow: 0px 8px 20px rgba(0,0,0,0.4);
-    }
+        .card {
+            background-color: #2a2a3e;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: inline-block;
+            min-width: 300px;
+        }
 
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: 0.3s;
-    }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
 
-    button:hover {
-      background-color: #45a049;
-      transform: scale(1.05);
-    }
+        button:hover {
+            background-color: #45a049;
+        }
 
-    .perfil {
-      margin-top: 20px;
-      display: none;
-      background-color: #1e1e2f;
-      padding: 15px;
-      border-radius: 8px;
-    }
+        #resultado {
+            margin-top: 20px;
+            text-align: left;
+            font-size: 14px;
+        }
 
-    .dato {
-      margin: 8px 0;
-    }
-  </style>
+        .token-box {
+            background: #1e1e2f;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+            word-break: break-all;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Simulación de API con JWT</h1>
+    <h1>Simulación de API con JWT</h1>
 
-  <div class="card">
-    <p><strong>Usuario:</strong> Jared</p>
-    <button onclick="mostrarPerfil()">Obtener Perfil</button>
-
-    <div class="perfil" id="perfil">
-      <div class="dato"><strong>Usuario:</strong> Jared</div>
-      <div class="dato"><strong>Ubicación GPS:</strong> 19.4326,-99.1332</div>
-      <div class="dato"><strong>Estado:</strong> Activo</div>
+    <div class="card">
+        <p><strong>Usuario:</strong> Jared</p>
+        <button id="btnObtener">Obtener Perfil</button>
+        
+        <div id="resultado"></div>
     </div>
-  </div>
+
+    <script>
+        // Lógica para la práctica: Servicio con Token
+        const boton = document.getElementById('btnObtener');
+        const resultadoDiv = document.getElementById('resultado');
+
+        boton.addEventListener('click', () => {
+            // 1. Simulamos que el botón está trabajando
+            boton.innerText = "Conectando...";
+            boton.disabled = true;
+
+            // 2. Simulamos una espera de red (1 segundo)
+            setTimeout(() => {
+                // Generamos un Token JWT simulado
+                const fakeJWT = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKYXJlZDEyMyIsImV4cCI6MTUxNjIzOTAyMn0";
+
+                // 3. Mostramos la información en pantalla
+                resultadoDiv.innerHTML = `
+                    <p style="color: #4caf50; font-weight: bold;">✅ Acceso Autorizado</p>
+                    <p><strong>Datos recibidos:</strong></p>
+                    <ul>
+                        <li>Nombre: Jared Vergara</li>
+                        <li>Status: Alumno</li>
+                    </ul>
+                    <p><strong>Token de sesión (JWT):</strong></p>
+                    <div class="token-box">${fakeJWT}</div>
+                `;
+
+                boton.innerText = "Perfil Actualizado";
+                boton.style.backgroundColor = "#2196F3";
+            }, 1000);
+        });
+    </script>
+
+</body>
+</html>
 
   <script>
     function mostrarPerfil() {
       docume
+
