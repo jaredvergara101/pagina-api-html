@@ -3,215 +3,535 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Práctica Final - Jared</title>
+    <title>API Lab — Jared</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* Estilos Generales */
+        :root {
+            --bg: #050810;
+            --surface: #0b1120;
+            --surface2: #111c30;
+            --border: rgba(56,189,248,0.15);
+            --primary: #38bdf8;
+            --primary-dim: rgba(56,189,248,0.12);
+            --teal: #2dd4bf;
+            --teal-dim: rgba(45,212,191,0.1);
+            --amber: #fbbf24;
+            --green: #4ade80;
+            --red: #f87171;
+            --text: #e2e8f0;
+            --muted: #64748b;
+            --glow: 0 0 24px rgba(56,189,248,0.25);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0f172a; /* Fondo oscuro moderno */
-            color: #f8fafc;
-            margin: 0;
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 450px;
-            background: #1e293b;
-            border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
-            border: 1px solid #334155;
+            overflow-x: hidden;
         }
 
-        h1 { font-size: 1.5rem; text-align: center; color: #38bdf8; margin-bottom: 20px; }
+        /* Animated background grid */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(56,189,248,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56,189,248,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-        /* Pestañas (Tabs) */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 60% 40%, rgba(56,189,248,0.04) 0%, transparent 50%),
+                        radial-gradient(ellipse at 20% 80%, rgba(45,212,191,0.03) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+            animation: drift 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes drift {
+            from { transform: translate(0, 0); }
+            to   { transform: translate(30px, -20px); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            margin-bottom: 28px;
+            animation: slideDown 0.6s ease both;
+        }
+
+        @keyframes slideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+
+        .header-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--primary);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            opacity: 0.8;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--teal));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        /* Main card */
+        .card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 480px;
+            background: var(--surface);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: var(--glow), 0 40px 60px rgba(0,0,0,0.5);
+            animation: slideUp 0.6s ease 0.1s both;
+        }
+
+        @keyframes slideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Top accent bar */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), var(--teal), transparent);
+        }
+
+        /* Tabs */
         .tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #334155;
-            padding-bottom: 10px;
+            padding: 20px 20px 0;
+            gap: 6px;
+            border-bottom: 1px solid var(--border);
         }
 
         .tab-btn {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             background: none;
             border: none;
-            color: #94a3b8;
+            color: var(--muted);
             cursor: pointer;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 8px;
-            transition: 0.2s;
+            padding: 10px 16px;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 7px;
         }
+
+        .tab-btn .tab-icon { font-size: 0.95rem; }
+
+        .tab-btn:hover { color: var(--text); background: var(--primary-dim); }
 
         .tab-btn.active {
-            background: #38bdf8;
-            color: #0f172a;
+            color: var(--primary);
+            background: var(--primary-dim);
         }
 
-        .content { display: none; animation: fadeIn 0.3s ease; }
-        .content.active { display: block; }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0; right: 0;
+            height: 2px;
+            background: var(--primary);
+            border-radius: 2px 2px 0 0;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Panel */
+        .panel { display: none; padding: 24px; animation: fadeIn 0.25s ease; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-        /* Estilos Chat */
+        .panel-title {
+            font-size: 0.75rem;
+            font-family: 'Space Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-title::after { content: ''; flex:1; height:1px; background: var(--border); }
+
+        /* ── CHAT ── */
         #chat-box {
-            height: 180px;
-            background: #0f172a;
-            border-radius: 8px;
-            padding: 12px;
+            height: 200px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px;
             overflow-y: auto;
             margin-bottom: 12px;
-            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            max-width: 85%;
+        }
+        .msg-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            opacity: 0.6;
+        }
+        .msg-bubble {
+            padding: 9px 13px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            line-height: 1.4;
+        }
+        .user-msg { align-self: flex-end; align-items: flex-end; }
+        .user-msg .msg-label { color: var(--primary); }
+        .user-msg .msg-bubble { background: var(--primary-dim); border: 1px solid rgba(56,189,248,0.25); color: var(--text); border-radius: 10px 10px 2px 10px; }
+
+        .bot-msg { align-self: flex-start; align-items: flex-start; }
+        .bot-msg .msg-label { color: var(--teal); }
+        .bot-msg .msg-bubble { background: var(--teal-dim); border: 1px solid rgba(45,212,191,0.2); color: var(--text); border-radius: 10px 10px 10px 2px; }
+
+        .chat-input-row { display: flex; gap: 8px; }
+
+        .text-input {
+            flex: 1;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Syne', sans-serif;
             font-size: 0.9rem;
-        }
-        .msg { margin-bottom: 8px; }
-        .user-msg { color: #38bdf8; }
-        .bot-msg { color: #2dd4bf; }
-
-        /* Estilos Globales para Inputs y Botones */
-        input {
-            width: calc(100% - 100px);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
             outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
+        .text-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(56,189,248,0.1); }
+        .text-input::placeholder { color: var(--muted); }
 
-        button.action-btn {
-            padding: 10px 16px;
-            border-radius: 8px;
+        /* ── BUTTONS ── */
+        .btn-primary {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 11px 18px;
+            border-radius: 10px;
             border: none;
-            background: #38bdf8;
-            color: #0f172a;
-            font-weight: bold;
+            background: var(--primary);
+            color: var(--bg);
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s;
+            white-space: nowrap;
         }
+        .btn-primary:hover { background: #7dd3fc; box-shadow: 0 0 16px rgba(56,189,248,0.4); transform: translateY(-1px); }
+        .btn-primary:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-primary:active:not(:disabled) { transform: translateY(0); }
 
-        button.action-btn:hover { background: #7dd3fc; }
-        button.action-btn:disabled { background: #475569; cursor: not-allowed; }
+        .btn-full { width: 100%; padding: 13px; font-size: 0.9rem; }
 
-        /* Token Display */
-        .token-card {
-            background: #0f172a;
-            padding: 12px;
+        /* ── COMPRA ── */
+        .product-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--primary), var(--teal));
+        }
+        .product-name {
+            font-weight: 700; font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .product-desc {
+            font-size: 0.8rem; color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .product-price {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .product-price span { font-size: 0.8rem; color: var(--muted); margin-left: 4px; font-family: 'Syne', sans-serif; }
+
+        .status-msg {
+            margin-top: 14px;
+            padding: 10px 14px;
             border-radius: 8px;
-            font-family: monospace;
-            font-size: 11px;
-            word-break: break-all;
-            margin-top: 15px;
-            border: 1px dashed #38bdf8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: none;
         }
+        .status-msg.success { display: block; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+        .status-msg.loading { display: block; background: var(--primary-dim); border: 1px solid rgba(56,189,248,0.2); color: var(--primary); }
+
+        /* Loading dots */
+        .dots::after {
+            content: '...';
+            animation: dots 1.2s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0%,20%  { content: '.'; }
+            40%     { content: '..'; }
+            60%,100%{ content: '...'; }
+        }
+
+        /* ── TOKEN ── */
+        .token-info {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 18px;
+            line-height: 1.6;
+        }
+        .token-info strong { color: var(--text); }
+
+        .token-card {
+            background: var(--bg);
+            border: 1px dashed rgba(56,189,248,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            position: relative;
+        }
+        .token-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--primary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .token-badge {
+            background: rgba(74,222,128,0.15);
+            color: var(--green);
+            border: 1px solid rgba(74,222,128,0.3);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+        }
+        .token-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            word-break: break-all;
+            color: var(--text);
+            line-height: 1.6;
+            opacity: 0.85;
+        }
+        .token-expiry {
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--amber);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Typing indicator */
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 9px 13px;
+            background: var(--teal-dim);
+            border: 1px solid rgba(45,212,191,0.2);
+            border-radius: 10px 10px 10px 2px;
+            width: fit-content;
+        }
+        .typing span {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--teal);
+            animation: bounce 1s ease infinite;
+        }
+        .typing span:nth-child(2) { animation-delay: 0.15s; }
+        .typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
     </style>
 </head>
 <body>
 
-    <h1>Prácticas API - Jared</h1>
+    <div class="header">
+        <div class="header-label">// API Playground</div>
+        <h1>Prácticas API — Jared</h1>
+    </div>
 
-    <div class="container">
+    <div class="card">
         <div class="tabs">
-            <button class="tab-btn active" onclick="showTab('chat')">Chat</button>
-            <button class="tab-btn" onclick="showTab('compra')">Compra</button>
-            <button class="tab-btn" onclick="showTab('token')">Token</button>
+            <button class="tab-btn active" id="tab-chat" onclick="showTab('chat', this)">
+                <span class="tab-icon">💬</span> Chat
+            </button>
+            <button class="tab-btn" id="tab-compra" onclick="showTab('compra', this)">
+                <span class="tab-icon">🛒</span> Compra
+            </button>
+            <button class="tab-btn" id="tab-token" onclick="showTab('token', this)">
+                <span class="tab-icon">🔑</span> Token
+            </button>
         </div>
 
-        <div id="chat" class="content active">
-            <h3>💬 Chat Sencillo</h3>
-            <div id="chat-box" id="chatDisplay">
-                <div class="msg bot-msg"><strong>Bot:</strong> Hola Jared, ¿en qué puedo ayudarte?</div>
+        <!-- CHAT -->
+        <div id="panel-chat" class="panel active">
+            <div class="panel-title">Chat Sencillo</div>
+            <div id="chat-box">
+                <div class="msg bot-msg">
+                    <div class="msg-label">BOT</div>
+                    <div class="msg-bubble">Hola Jared, ¿en qué puedo ayudarte hoy?</div>
+                </div>
             </div>
-            <div style="display: flex; gap: 5px;">
-                <input type="text" id="chatInput" placeholder="Escribe aquí...">
-                <button class="action-btn" onclick="sendMsg()">Enviar</button>
+            <div class="chat-input-row">
+                <input type="text" class="text-input" id="chatInput" placeholder="Escribe un mensaje..." onkeypress="if(event.key==='Enter') sendMsg()">
+                <button class="btn-primary" onclick="sendMsg()">Enviar</button>
             </div>
         </div>
 
-        <div id="compra" class="content">
-            <h3>🛒 Compra Sencilla</h3>
-            <div style="background: #334155; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <p><strong>Producto:</strong> API Premium Key</p>
-                <p><strong>Total:</strong> $49.99</p>
+        <!-- COMPRA -->
+        <div id="panel-compra" class="panel">
+            <div class="panel-title">Compra Sencilla</div>
+            <div class="product-card">
+                <div class="product-name">API Premium Key</div>
+                <div class="product-desc">Acceso completo a todos los endpoints · Sin límite de rate · Soporte 24/7</div>
+                <div class="product-price">$49.99 <span>/ mes</span></div>
             </div>
-            <button class="action-btn" id="btnBuy" onclick="buyProcess()">Confirmar Pago</button>
-            <p id="buyStatus" style="margin-top: 10px;"></p>
+            <button class="btn-primary btn-full" id="btnBuy" onclick="buyProcess()">Confirmar Pago</button>
+            <div id="buyStatus" class="status-msg"></div>
         </div>
 
-        <div id="token" class="content">
-            <h3>🔑 Servicio con Token (JWT)</h3>
-            <p>Obtén tu acceso seguro al servidor.</p>
-            <button class="action-btn" id="btnToken" onclick="getToken()">Generar JWT</button>
+        <!-- TOKEN -->
+        <div id="panel-token" class="panel">
+            <div class="panel-title">Servicio con Token JWT</div>
+            <p class="token-info">Genera un <strong>JSON Web Token</strong> para autenticar tus solicitudes al servidor de forma segura.</p>
+            <button class="btn-primary btn-full" id="btnToken" onclick="getToken()">Generar JWT</button>
             <div id="tokenArea"></div>
         </div>
     </div>
 
-    <script>
-        // Lógica de Pestañas
-        function showTab(tabId) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
+<script>
+    function showTab(name, btn) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('panel-' + name).classList.add('active');
+        btn.classList.add('active');
+    }
 
-        // Lógica de Chat
-        function sendMsg() {
-            const input = document.getElementById('chatInput');
-            const box = document.getElementById('chat-box');
-            if (input.value.trim() !== "") {
-                box.innerHTML += `<div class="msg user-msg"><strong>Tú:</strong> ${input.value}</div>`;
-                const userText = input.value;
-                input.value = "";
-                box.scrollTop = box.scrollHeight;
+    function sendMsg() {
+        var input = document.getElementById('chatInput');
+        var box = document.getElementById('chat-box');
+        var txt = input.value.trim();
+        if (!txt) return;
 
-                setTimeout(() => {
-                    box.innerHTML += `<div class="msg bot-msg"><strong>Bot:</strong> Recibí tu mensaje: "${userText}". ¡Procesando!</div>`;
-                    box.scrollTop = box.scrollHeight;
-                }, 600);
-            }
-        }
+        var userDiv = document.createElement('div');
+        userDiv.className = 'msg user-msg';
+        userDiv.innerHTML = '<div class="msg-label">TÚ</div><div class="msg-bubble">' + escHtml(txt) + '</div>';
+        box.appendChild(userDiv);
+        input.value = '';
+        box.scrollTop = box.scrollHeight;
 
-        // Lógica de Compra
-        function buyProcess() {
-            const btn = document.getElementById('btnBuy');
-            const status = document.getElementById('buyStatus');
-            btn.disabled = true;
-            btn.innerText = "Validando tarjeta...";
-            
-            setTimeout(() => {
-                status.innerHTML = "✅ ¡Pago aprobado! Revisa tu correo.";
-                status.style.color = "#4ade80";
-                btn.innerText = "Comprado";
-            }, 1500);
-        }
+        // Typing indicator
+        var typingDiv = document.createElement('div');
+        typingDiv.className = 'msg bot-msg';
+        typingDiv.innerHTML = '<div class="msg-label">BOT</div><div class="typing"><span></span><span></span><span></span></div>';
+        box.appendChild(typingDiv);
+        box.scrollTop = box.scrollHeight;
 
-        // Lógica de Token
-        function getToken() {
-            const area = document.getElementById('tokenArea');
-            const btn = document.getElementById('btnToken');
-            // Simulación de un JWT real
-            const jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEwMSIsIm5hbWUiOiJKYXJlZCJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-            
-            btn.innerText = "Solicitando...";
-            setTimeout(() => {
-                area.innerHTML = `
-                    <div class="token-card">
-                        <strong style="color: #38bdf8;">Token Generado:</strong><br>
-                        ${jwt}
-                    </div>
-                    <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">⚠️ Este token vence en 24 horas.</p>
-                `;
-                btn.innerText = "Token Actualizado";
-            }, 800);
-        }
-    </script>
+        var saved = txt;
+        setTimeout(function() {
+            box.removeChild(typingDiv);
+            var botDiv = document.createElement('div');
+            botDiv.className = 'msg bot-msg';
+            botDiv.innerHTML = '<div class="msg-label">BOT</div><div class="msg-bubble">Recibí: <em>"' + escHtml(saved) + '"</em> — ¡procesando solicitud!</div>';
+            box.appendChild(botDiv);
+            box.scrollTop = box.scrollHeight;
+        }, 900);
+    }
+
+    function escHtml(t) {
+        return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function buyProcess() {
+        var btn = document.getElementById('btnBuy');
+        var status = document.getElementById('buyStatus');
+        btn.disabled = true;
+        btn.textContent = 'Validando tarjeta\u2026';
+        status.className = 'status-msg loading';
+        status.innerHTML = '<span class="dots">Procesando pago</span>';
+
+        setTimeout(function() {
+            btn.textContent = '✓ Pago Completado';
+            status.className = 'status-msg success';
+            status.textContent = '✅ Pago aprobado. Revisa tu correo para activar tu acceso.';
+        }, 1800);
+    }
+
+    function getToken() {
+        var btn = document.getElementById('btnToken');
+        var area = document.getElementById('tokenArea');
+        btn.disabled = true;
+        btn.textContent = 'Solicitando token\u2026';
+
+        var jwt = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEwMSIsIm5hbWUiOiJKYXJlZCIsImlhdCI6MTcxMDAwMDAwMCwiZXhwIjoxNzEwMDg2NDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        setTimeout(function() {
+            area.innerHTML =
+                '<div class="token-card">' +
+                    '<div class="token-label">Token Generado <span class="token-badge">ACTIVO</span></div>' +
+                    '<div class="token-value">' + jwt + '</div>' +
+                    '<div class="token-expiry">⚠️ Este token vence en 24 horas</div>' +
+                '</div>';
+            btn.disabled = false;
+            btn.textContent = 'Regenerar JWT';
+        }, 900);
+    }
+</script>
 </body>
 </html>
